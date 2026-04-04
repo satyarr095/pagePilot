@@ -39,10 +39,10 @@ export function MessageBubble({
       className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}
     >
       <div
-        className={`max-w-[min(100%,42rem)] rounded-2xl px-4 py-3 shadow-sm ${
+        className={`max-w-[min(100%,42rem)] rounded-2xl px-4 py-3 shadow-sm transition-all duration-200 ${
           isUser
-            ? 'bg-gradient-to-br from-indigo-600 to-sky-600 text-white'
-            : 'border border-slate-700/80 bg-slate-800/60 text-slate-100'
+            ? 'bg-gradient-to-br from-[#ff0033] to-[#b71c1c] text-white shadow-[0_0_15px_rgba(255,0,51,0.2)]'
+            : 'border border-neutral-800/80 bg-[#111] text-neutral-100'
         }`}
       >
         <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
@@ -54,7 +54,7 @@ export function MessageBubble({
         >
           {message.created_at && (
             <span
-              className={`text-[11px] ${isUser ? 'text-indigo-100/80' : 'text-slate-500'}`}
+              className={`text-[11px] ${isUser ? 'text-red-100/60' : 'text-neutral-600'}`}
             >
               {formatTime(message.created_at)}
             </span>
@@ -66,7 +66,7 @@ export function MessageBubble({
                 setExpanded((v) => !v)
                 onShowSources(sources)
               }}
-              className="inline-flex items-center gap-1 rounded-lg bg-slate-900/60 px-2 py-1 text-xs font-medium text-indigo-200 ring-1 ring-indigo-500/30 transition hover:bg-slate-900 hover:text-white"
+              className="inline-flex items-center gap-1 rounded-lg bg-[#ff0033]/10 px-2 py-1 text-xs font-medium text-[#ff1744] ring-1 ring-[#ff0033]/25 transition-all duration-200 hover:bg-[#ff0033]/15 hover:text-white hover:shadow-[0_0_10px_rgba(255,0,51,0.2)]"
             >
               <BookOpen className="h-3.5 w-3.5" />
               Sources ({sources.length})
@@ -75,26 +75,26 @@ export function MessageBubble({
         </div>
 
         {!isUser && hasSources && expanded && (
-          <ul className="mt-3 space-y-2 border-t border-slate-700/80 pt-3 text-xs text-slate-400">
+          <ul className="mt-3 space-y-2 border-t border-neutral-800/80 pt-3 text-xs text-neutral-500">
             {sources.slice(0, 3).map((s, i) => (
               <li key={`${s.document_id}-${s.chunk_index ?? i}`}>
-                <span className="font-medium text-slate-300">
+                <span className="font-medium text-neutral-300">
                   {s.source_file ?? s.document_id}
                 </span>
                 {s.chunk_index != null && (
-                  <span className="text-slate-500">
+                  <span className="text-neutral-600">
                     {' '}
                     · chunk {s.chunk_index}
                   </span>
                 )}
-                <span className="text-indigo-300/90">
+                <span className="text-[#ff0033]/80">
                   {' '}
                   · score {(resolveScore(s) * 100).toFixed(1)}%
                 </span>
               </li>
             ))}
             {sources.length > 3 && (
-              <li className="text-slate-500">
+              <li className="text-neutral-600">
                 +{sources.length - 3} more in side panel
               </li>
             )}

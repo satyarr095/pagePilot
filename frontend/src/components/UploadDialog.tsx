@@ -78,21 +78,21 @@ export function UploadDialog({ open, onClose, onUpload }: UploadDialogProps) {
       <button
         type="button"
         aria-label="Close dialog"
-        className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={() => !uploading && onClose()}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative z-10 w-full max-w-lg rounded-2xl border border-slate-700/80 bg-slate-900 p-6 shadow-2xl shadow-black/50 animate-slide-up"
+        className="relative z-10 w-full max-w-lg rounded-2xl border border-[#ff0033]/20 bg-[#0a0a0a] p-6 shadow-2xl shadow-[rgba(255,0,51,0.1)] animate-slide-up"
       >
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
             <h2 id={titleId} className="text-lg font-semibold text-white">
               Upload documents
             </h2>
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-neutral-500">
               PDF files are ingested for retrieval and chat.
             </p>
           </div>
@@ -100,7 +100,7 @@ export function UploadDialog({ open, onClose, onUpload }: UploadDialogProps) {
             type="button"
             disabled={uploading}
             onClick={() => !uploading && onClose()}
-            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
+            className="rounded-lg p-2 text-neutral-500 transition-all duration-200 hover:bg-white/[0.05] hover:text-white disabled:opacity-40"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -131,38 +131,38 @@ export function UploadDialog({ open, onClose, onUpload }: UploadDialogProps) {
           onDragLeave={() => setDragOver(false)}
           onDrop={onDrop}
           onClick={() => inputRef.current?.click()}
-          className={`cursor-pointer rounded-2xl border-2 border-dashed px-6 py-12 text-center transition ${
+          className={`cursor-pointer rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-all duration-300 ${
             dragOver
-              ? 'border-indigo-400 bg-indigo-500/10'
-              : 'border-slate-600 bg-slate-950/50 hover:border-slate-500 hover:bg-slate-800/40'
+              ? 'border-[#ff0033] bg-[#ff0033]/5 shadow-[0_0_20px_rgba(255,0,51,0.15)]'
+              : 'border-neutral-800 bg-[#050505] hover:border-neutral-700 hover:bg-white/[0.01]'
           }`}
         >
-          <FileUp className="mx-auto h-10 w-10 text-indigo-400" />
-          <p className="mt-3 text-sm font-medium text-slate-200">
+          <FileUp className="mx-auto h-10 w-10 text-[#ff0033]/70" />
+          <p className="mt-3 text-sm font-medium text-neutral-200">
             Drag and drop a PDF here
           </p>
-          <p className="mt-1 text-xs text-slate-500">or click to browse</p>
+          <p className="mt-1 text-xs text-neutral-600">or click to browse</p>
         </div>
 
         {file && (
-          <div className="mt-4 rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3">
+          <div className="mt-4 rounded-xl border border-neutral-800 bg-[#050505] px-4 py-3">
             <div className="flex items-center justify-between gap-2">
-              <p className="truncate text-sm font-medium text-slate-200">
+              <p className="truncate text-sm font-medium text-neutral-200">
                 {file.name}
               </p>
-              <span className="shrink-0 text-xs text-slate-500">
+              <span className="shrink-0 text-xs text-neutral-600">
                 {(file.size / 1024 / 1024).toFixed(2)} MB
               </span>
             </div>
             {(uploading || progress > 0) && (
               <div className="mt-3">
-                <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+                <div className="h-2 overflow-hidden rounded-full bg-neutral-900">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-sky-500 transition-all duration-200"
+                    className="h-full rounded-full bg-gradient-to-r from-[#ff0033] to-[#ff1744] shadow-[0_0_10px_rgba(255,0,51,0.4)] transition-all duration-200"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                <p className="mt-1 text-right text-xs text-slate-500">
+                <p className="mt-1 text-right text-xs text-neutral-600">
                   {progress}%
                 </p>
               </div>
@@ -171,7 +171,7 @@ export function UploadDialog({ open, onClose, onUpload }: UploadDialogProps) {
         )}
 
         {error && (
-          <p className="mt-3 text-sm text-red-300" role="alert">
+          <p className="mt-3 text-sm text-red-400" role="alert">
             {error}
           </p>
         )}
@@ -181,7 +181,7 @@ export function UploadDialog({ open, onClose, onUpload }: UploadDialogProps) {
             type="button"
             disabled={uploading}
             onClick={() => !uploading && onClose()}
-            className="rounded-xl px-4 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
+            className="rounded-xl px-4 py-2.5 text-sm font-medium text-neutral-400 transition-all duration-200 hover:bg-white/[0.05] hover:text-white disabled:opacity-40"
           >
             Cancel
           </button>
@@ -189,7 +189,7 @@ export function UploadDialog({ open, onClose, onUpload }: UploadDialogProps) {
             type="button"
             disabled={!file || uploading}
             onClick={handleUpload}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-900/30 transition hover:from-indigo-500 hover:to-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#ff0033] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[rgba(255,0,51,0.25)] transition-all duration-200 hover:bg-[#ff1744] hover:shadow-[0_0_20px_rgba(255,0,51,0.3)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {uploading && <LoadingSpinner size="sm" label="Uploading" />}
             {uploading ? 'Uploading…' : 'Upload'}

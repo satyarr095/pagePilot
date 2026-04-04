@@ -7,11 +7,11 @@ function ThinkingIndicator() {
   return (
     <div className="flex items-center gap-1.5 py-1">
       <div className="flex items-center gap-1">
-        <span className="thinking-dot h-2 w-2 rounded-full bg-indigo-400" />
-        <span className="thinking-dot h-2 w-2 rounded-full bg-indigo-400 [animation-delay:150ms]" />
-        <span className="thinking-dot h-2 w-2 rounded-full bg-indigo-400 [animation-delay:300ms]" />
+        <span className="thinking-dot h-2 w-2 rounded-full bg-[#ff0033] shadow-[0_0_8px_rgba(255,0,51,0.55)]" />
+        <span className="thinking-dot h-2 w-2 rounded-full bg-[#ff1744] shadow-[0_0_8px_rgba(255,23,68,0.5)] [animation-delay:150ms]" />
+        <span className="thinking-dot h-2 w-2 rounded-full bg-[#e53935] shadow-[0_0_8px_rgba(229,57,53,0.5)] [animation-delay:300ms]" />
       </div>
-      <span className="ml-1.5 text-xs text-slate-400">Thinking...</span>
+      <span className="ml-1.5 text-xs text-neutral-500">Thinking...</span>
     </div>
   )
 }
@@ -36,11 +36,11 @@ export function ChatWindow({ onShowSources }: ChatWindowProps) {
     <div className="flex-1 overflow-y-auto px-4 py-6">
       <div className="mx-auto flex max-w-3xl flex-col gap-4">
         {messages.length === 0 && !isStreaming && (
-          <div className="rounded-2xl border border-dashed border-slate-700/80 bg-slate-900/30 px-6 py-16 text-center">
-            <p className="text-lg font-medium text-slate-200">
+          <div className="rounded-2xl border border-dashed border-neutral-800/80 bg-[#0a0a0a] px-6 py-16 text-center">
+            <p className="text-lg font-medium text-neutral-200">
               Start a conversation
             </p>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-neutral-600">
               Ask questions about your uploaded documents. Responses stream in
               live with retrieved sources you can inspect on the right.
             </p>
@@ -59,7 +59,7 @@ export function ChatWindow({ onShowSources }: ChatWindowProps) {
 
         {isStreaming && (
           <div className="flex justify-start animate-fade-in">
-            <div className="max-w-[min(100%,42rem)] rounded-2xl border border-slate-700/80 bg-slate-800/60 px-4 py-3 text-sm leading-relaxed text-slate-100">
+            <div className="max-w-[min(100%,42rem)] rounded-2xl border border-neutral-800/80 bg-[#111] px-4 py-3 text-sm leading-relaxed text-neutral-100">
               {hasStreamedText ? (
                 <>
                   <span className="whitespace-pre-wrap break-words">

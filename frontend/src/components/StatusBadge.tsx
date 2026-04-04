@@ -7,22 +7,22 @@ const styles: Record<
   created: {
     label: 'Created',
     className:
-      'bg-slate-700/80 text-slate-200 ring-1 ring-inset ring-slate-600/80',
+      'bg-neutral-800/80 text-neutral-300 ring-1 ring-inset ring-neutral-700/80',
   },
   processing: {
     label: 'Processing',
     className:
-      'bg-amber-500/15 text-amber-200 ring-1 ring-inset ring-amber-500/40',
+      'bg-[#ff0033]/10 text-[#ff1744] ring-1 ring-inset ring-[#ff0033]/30 shadow-[0_0_8px_rgba(255,0,51,0.2)] animate-pulse-soft',
   },
   ready: {
     label: 'Ready',
     className:
-      'bg-emerald-500/15 text-emerald-200 ring-1 ring-inset ring-emerald-500/40',
+      'bg-emerald-500/10 text-emerald-300 ring-1 ring-inset ring-emerald-500/30',
   },
   failed: {
     label: 'Failed',
     className:
-      'bg-red-500/15 text-red-200 ring-1 ring-inset ring-red-500/40',
+      'bg-red-900/30 text-red-300 ring-1 ring-inset ring-red-500/40',
   },
 }
 

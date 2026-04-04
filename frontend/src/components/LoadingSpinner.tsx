@@ -19,13 +19,13 @@ export function LoadingSpinner({
 }: LoadingSpinnerProps) {
   return (
     <span
-      className={`inline-flex items-center justify-center gap-2 text-slate-400 ${className}`}
+      className={`inline-flex items-center justify-center gap-2 text-neutral-500 ${className}`}
       role="status"
       aria-live="polite"
       aria-label={label}
     >
       <Loader2
-        className={`${sizeMap[size]} animate-spin text-indigo-400`}
+        className={`${sizeMap[size]} animate-spin text-[#ff0033] drop-shadow-[0_0_6px_rgba(255,0,51,0.5)]`}
         aria-hidden
       />
     </span>

@@ -15,29 +15,29 @@ interface SourceViewerProps {
 function SourceRow({ source }: { source: RetrievedSource }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="rounded-xl border border-slate-700/60 bg-slate-900/50">
+    <div className="rounded-xl border border-neutral-800/60 bg-[#0a0a0a] transition-all duration-200 hover:border-[#ff0033]/20">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition hover:bg-slate-800/60"
+        className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-all duration-200 hover:bg-white/[0.02]"
       >
         {open ? (
-          <ChevronDown className="h-4 w-4 shrink-0 text-slate-500" />
+          <ChevronDown className="h-4 w-4 shrink-0 text-neutral-600" />
         ) : (
-          <ChevronRight className="h-4 w-4 shrink-0 text-slate-500" />
+          <ChevronRight className="h-4 w-4 shrink-0 text-neutral-600" />
         )}
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium text-slate-200">
+          <p className="truncate font-medium text-neutral-200">
             {source.source_file ?? source.document_id}
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-neutral-600">
             Score {(resolveScore(source) * 100).toFixed(1)}%
             {source.chunk_index != null && ` · Chunk ${source.chunk_index}`}
           </p>
         </div>
       </button>
       {open && (
-        <div className="border-t border-slate-700/60 px-3 py-3 text-xs leading-relaxed text-slate-400">
+        <div className="border-t border-neutral-800/60 px-3 py-3 text-xs leading-relaxed text-neutral-500">
           {source.raw_text || source.content || 'No preview available'}
         </div>
       )}
@@ -48,23 +48,23 @@ function SourceRow({ source }: { source: RetrievedSource }) {
 export function SourceViewer({ open, onToggle, sources }: SourceViewerProps) {
   return (
     <div
-      className={`relative flex shrink-0 flex-col border-l border-slate-800/80 bg-slate-950/95 transition-[width] duration-300 ease-out ${
+      className={`relative flex shrink-0 flex-col border-l border-[#ff0033]/10 bg-[#0a0a0a] transition-[width] duration-300 ease-out ${
         open ? 'w-full max-w-md lg:w-96' : 'w-0 overflow-hidden border-l-0'
       }`}
     >
       <div className="flex h-full min-w-[min(100vw,24rem)] flex-col">
-        <div className="flex h-14 items-center justify-between border-b border-slate-800/80 px-4">
+        <div className="flex h-14 items-center justify-between border-b border-[#ff0033]/10 px-4">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-indigo-400" />
+            <Sparkles className="h-4 w-4 text-[#ff0033]" />
             <h2 className="text-sm font-semibold text-white">Sources</h2>
-            <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-400">
+            <span className="rounded-full bg-neutral-900 px-2 py-0.5 text-xs text-neutral-500 ring-1 ring-neutral-800">
               {sources.length}
             </span>
           </div>
           <button
             type="button"
             onClick={onToggle}
-            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+            className="rounded-lg p-2 text-neutral-500 transition-all duration-200 hover:bg-white/[0.03] hover:text-white"
             aria-label="Collapse sources panel"
           >
             <PanelRightClose className="h-5 w-5" />
@@ -72,7 +72,7 @@ export function SourceViewer({ open, onToggle, sources }: SourceViewerProps) {
         </div>
         <div className="flex-1 space-y-2 overflow-y-auto p-3">
           {sources.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-700/80 bg-slate-900/30 p-6 text-center text-sm text-slate-500">
+            <div className="rounded-xl border border-dashed border-neutral-800/80 bg-[#050505] p-6 text-center text-sm text-neutral-600">
               Retrieved passages will appear here after the assistant responds.
             </div>
           ) : (
@@ -100,12 +100,12 @@ export function SourcePanelToggle({
     <button
       type="button"
       onClick={onClick}
-      className="absolute right-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-lg border border-slate-700 bg-slate-900/90 px-2 py-2 text-slate-300 shadow-lg transition hover:border-indigo-500/40 hover:text-white lg:block"
+      className="absolute right-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-lg border border-neutral-800 bg-[#0a0a0a] px-2 py-2 text-neutral-400 shadow-lg transition-all duration-200 hover:border-[#ff0033]/30 hover:text-white hover:shadow-[0_0_12px_rgba(255,0,51,0.15)] lg:block"
       aria-label="Open sources panel"
     >
       <Sparkles className="h-4 w-4" />
       {count > 0 && (
-        <span className="ml-1 text-xs font-medium text-indigo-300">{count}</span>
+        <span className="ml-1 text-xs font-medium text-[#ff0033]">{count}</span>
       )}
     </button>
   )

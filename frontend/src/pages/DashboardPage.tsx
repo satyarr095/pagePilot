@@ -76,14 +76,14 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="min-h-full bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900/80">
+    <div className="min-h-full tron-bg-grid">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            <h1 className="text-3xl font-bold tracking-tight text-white tron-glow-text sm:text-4xl">
               PagePilot
             </h1>
-            <p className="mt-2 max-w-xl text-slate-400">
+            <p className="mt-2 max-w-xl text-neutral-500">
               Production-grade AI document intelligence. Upload PDFs, process
               them into a searchable knowledge base, and chat with full source
               transparency.
@@ -94,7 +94,7 @@ export function DashboardPage() {
               type="button"
               onClick={() => refetch()}
               disabled={isFetching}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl border border-neutral-800 bg-[#0a0a0a] px-4 py-2.5 text-sm font-medium text-neutral-300 transition-all duration-200 hover:border-neutral-700 hover:bg-[#111] hover:text-white disabled:opacity-50"
             >
               <RefreshCw
                 className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`}
@@ -104,7 +104,7 @@ export function DashboardPage() {
             <button
               type="button"
               onClick={() => setModalOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-900/30 transition hover:from-indigo-500 hover:to-sky-500"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#ff0033] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[rgba(255,0,51,0.25)] transition-all duration-200 hover:bg-[#ff1744] hover:shadow-[0_0_20px_rgba(255,0,51,0.3)]"
             >
               <Plus className="h-4 w-4" />
               Create project
@@ -120,12 +120,12 @@ export function DashboardPage() {
           )}
 
           {isError && !isPending && (
-            <div className="rounded-2xl border border-red-500/30 bg-red-950/30 px-6 py-8 text-center">
-              <p className="text-red-200">{errorMessage(error)}</p>
+            <div className="rounded-2xl border border-red-500/20 bg-red-950/20 px-6 py-8 text-center">
+              <p className="text-red-300">{errorMessage(error)}</p>
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="mt-4 rounded-lg bg-red-500/20 px-4 py-2 text-sm font-medium text-red-100 transition hover:bg-red-500/30"
+                className="mt-4 rounded-lg bg-[#ff0033]/15 px-4 py-2 text-sm font-medium text-red-100 transition-all duration-200 hover:bg-[#ff0033]/25"
               >
                 Try again
               </button>
@@ -133,19 +133,19 @@ export function DashboardPage() {
           )}
 
           {!isPending && !isError && projects.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-700/80 bg-slate-900/40 px-6 py-20 text-center">
-              <FolderOpen className="h-12 w-12 text-slate-600" />
-              <p className="mt-4 text-lg font-medium text-slate-200">
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-800/80 bg-[#0a0a0a] px-6 py-20 text-center">
+              <FolderOpen className="h-12 w-12 text-neutral-700" />
+              <p className="mt-4 text-lg font-medium text-neutral-200">
                 No projects yet
               </p>
-              <p className="mt-2 max-w-md text-sm text-slate-500">
+              <p className="mt-2 max-w-md text-sm text-neutral-600">
                 Create your first project to start uploading documents and
                 chatting with your knowledge base.
               </p>
               <button
                 type="button"
                 onClick={() => setModalOpen(true)}
-                className="mt-6 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
+                className="mt-6 rounded-xl bg-[#ff0033] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[rgba(255,0,51,0.25)] transition-all duration-200 hover:bg-[#ff1744]"
               >
                 Create project
               </button>
@@ -165,9 +165,9 @@ export function DashboardPage() {
                 ))}
               </div>
 
-              <div className="hidden overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/40 xl:block">
+              <div className="hidden overflow-hidden rounded-2xl border border-neutral-800/80 bg-[#0a0a0a] xl:block">
                 <table className="w-full text-left text-sm">
-                  <thead className="border-b border-slate-800/80 bg-slate-900/80 text-xs uppercase tracking-wide text-slate-500">
+                  <thead className="border-b border-neutral-800/80 bg-[#0a0a0a] text-xs uppercase tracking-wider text-neutral-600">
                     <tr>
                       <th className="px-5 py-3 font-medium">Name</th>
                       <th className="px-5 py-3 font-medium">Status</th>
@@ -177,7 +177,7 @@ export function DashboardPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/80">
+                  <tbody className="divide-y divide-neutral-800/60">
                     {projects.map((p) => (
                       <ProjectTableRow
                         key={p.id}
@@ -230,18 +230,18 @@ function DeleteConfirmDialog({
   onProceed: () => void
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in">
       <div
-        className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={isDeleting ? undefined : onCancel}
       />
-      <div className="relative mx-4 w-full max-w-md rounded-2xl border border-slate-700/80 bg-slate-900 p-6 shadow-2xl">
+      <div className="relative mx-4 w-full max-w-md rounded-2xl border border-[#ff0033]/20 bg-[#0a0a0a] p-6 shadow-2xl shadow-[rgba(255,0,51,0.1)] animate-slide-up">
         <h2 className="text-lg font-semibold text-white">Delete Project</h2>
-        <p className="mt-3 text-sm text-slate-300">
+        <p className="mt-3 text-sm text-neutral-400">
           Do you wish to proceed with the deletion of{' '}
           <span className="font-semibold text-white">"{projectName}"</span>?
         </p>
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-neutral-600">
           This will permanently remove all documents, chat sessions, and
           processed data associated with this project.
         </p>
@@ -250,7 +250,7 @@ function DeleteConfirmDialog({
             type="button"
             onClick={onCancel}
             disabled={isDeleting}
-            className="rounded-xl border border-slate-600 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-700 disabled:opacity-50"
+            className="rounded-xl border border-neutral-700 bg-[#111] px-4 py-2 text-sm font-medium text-neutral-300 transition-all duration-200 hover:bg-neutral-800 disabled:opacity-50"
           >
             Cancel
           </button>
@@ -258,7 +258,7 @@ function DeleteConfirmDialog({
             type="button"
             onClick={onProceed}
             disabled={isDeleting}
-            className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-50"
+            className="rounded-xl bg-[#ff0033] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[rgba(255,0,51,0.25)] transition-all duration-200 hover:bg-[#ff1744] disabled:opacity-50"
           >
             {isDeleting ? 'Deleting...' : 'Proceed'}
           </button>
@@ -280,7 +280,7 @@ function ProjectTableRow({
   const created = formatDate(project.created_at)
   return (
     <tr
-      className="cursor-pointer transition hover:bg-slate-800/40"
+      className="cursor-pointer transition-all duration-200 hover:bg-white/[0.02]"
       onClick={onOpen}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -294,7 +294,7 @@ function ProjectTableRow({
       <td className="px-5 py-4">
         <div className="font-medium text-white">{project.name}</div>
         {project.description && (
-          <div className="mt-0.5 line-clamp-1 text-xs text-slate-500">
+          <div className="mt-0.5 line-clamp-1 text-xs text-neutral-600">
             {project.description}
           </div>
         )}
@@ -302,7 +302,7 @@ function ProjectTableRow({
       <td className="px-5 py-4">
         <StatusBadge status={project.status} />
       </td>
-      <td className="px-5 py-4 text-slate-400">{created}</td>
+      <td className="px-5 py-4 text-neutral-500">{created}</td>
       <td className="px-5 py-4 text-right">
         <div className="flex items-center justify-end gap-2">
           <button
@@ -311,7 +311,7 @@ function ProjectTableRow({
               e.stopPropagation()
               onOpen()
             }}
-            className="rounded-lg bg-indigo-600/90 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-indigo-500"
+            className="rounded-lg bg-[#ff0033]/90 px-3 py-1.5 text-xs font-semibold text-white transition-all duration-200 hover:bg-[#ff1744] hover:shadow-[0_0_10px_rgba(255,0,51,0.3)]"
           >
             Open
           </button>
@@ -321,7 +321,7 @@ function ProjectTableRow({
               e.stopPropagation()
               onDelete()
             }}
-            className="rounded-lg border border-red-500/30 bg-red-500/10 p-1.5 text-red-400 transition hover:bg-red-500/20 hover:text-red-300"
+            className="rounded-lg border border-red-500/20 bg-red-500/5 p-1.5 text-red-400/70 transition-all duration-200 hover:bg-red-500/15 hover:text-red-300 hover:shadow-[0_0_8px_rgba(255,0,51,0.2)]"
             title="Delete project"
           >
             <Trash2 className="h-4 w-4" />

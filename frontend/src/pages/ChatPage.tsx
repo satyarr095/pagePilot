@@ -91,7 +91,6 @@ export function ChatPage() {
     resetForProject()
   }, [id, resetForProject])
 
-  // Auto-select the most recent session when sessions load
   useEffect(() => {
     if (!currentSessionId && sessionsQuery.data?.length) {
       setCurrentSessionId(sessionsQuery.data[0].id)
@@ -239,32 +238,32 @@ export function ChatPage() {
 
   if (!id) {
     return (
-      <div className="p-8 text-center text-slate-400">
+      <div className="p-8 text-center text-neutral-500">
         Missing project identifier.
       </div>
     )
   }
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-slate-950">
+    <div className="flex h-dvh flex-col overflow-hidden bg-[#050505]">
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <aside className="flex w-full max-w-xs shrink-0 flex-col border-r border-slate-800/80 bg-slate-950/98 lg:max-w-[280px]">
-          <div className="flex items-center gap-2 border-b border-slate-800/80 p-3">
+        <aside className="flex w-full max-w-xs shrink-0 flex-col border-r border-[#ff0033]/10 bg-[#0a0a0a] lg:max-w-[280px]">
+          <div className="flex items-center gap-2 border-b border-[#ff0033]/10 p-3">
             <Link
               to="/"
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm text-slate-400 transition hover:bg-slate-800 hover:text-white"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm text-neutral-500 transition-all duration-200 hover:bg-white/[0.03] hover:text-white"
             >
               <ArrowLeft className="h-4 w-4" />
               Dashboard
             </Link>
           </div>
 
-          <div className="border-b border-slate-800/80 p-4">
+          <div className="border-b border-[#ff0033]/10 p-4">
             {projectQuery.isPending && (
               <LoadingSpinner size="sm" label="Loading project" />
             )}
             {projectQuery.isError && (
-              <p className="text-sm text-red-300">
+              <p className="text-sm text-red-400">
                 {errorMessage(projectQuery.error)}
               </p>
             )}
@@ -274,7 +273,7 @@ export function ChatPage() {
                   {project.name}
                 </h1>
                 {project.description && (
-                  <p className="mt-1 line-clamp-3 text-xs text-slate-500">
+                  <p className="mt-1 line-clamp-3 text-xs text-neutral-600">
                     {project.description}
                   </p>
                 )}
@@ -285,11 +284,11 @@ export function ChatPage() {
             )}
           </div>
 
-          <div className="flex gap-2 border-b border-slate-800/80 p-3">
+          <div className="flex gap-2 border-b border-[#ff0033]/10 p-3">
             <button
               type="button"
               onClick={() => setUploadOpen(true)}
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900/60 py-2 text-xs font-medium text-slate-200 transition hover:border-indigo-500/40 hover:bg-slate-800"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-neutral-800 bg-[#111] py-2 text-xs font-medium text-neutral-300 transition-all duration-200 hover:border-[#ff0033]/25 hover:bg-white/[0.03] hover:text-white"
             >
               <Upload className="h-3.5 w-3.5" />
               Upload
@@ -298,7 +297,7 @@ export function ChatPage() {
               type="button"
               onClick={() => processMut.mutate()}
               disabled={processMut.isPending || documents.length === 0}
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 py-2 text-xs font-semibold text-white shadow-md transition hover:from-indigo-500 hover:to-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#ff0033] py-2 text-xs font-semibold text-white shadow-md shadow-[rgba(255,0,51,0.2)] transition-all duration-200 hover:bg-[#ff1744] hover:shadow-[0_0_15px_rgba(255,0,51,0.25)] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Play className="h-3.5 w-3.5" />
               {processMut.isPending ? '...' : 'Process'}
@@ -306,38 +305,38 @@ export function ChatPage() {
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto p-3">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-600">
               Documents
             </p>
             {documentsQuery.isPending && (
               <LoadingSpinner size="sm" label="Loading documents" />
             )}
             {documents.length === 0 && !documentsQuery.isPending && (
-              <p className="text-xs text-slate-500">No documents uploaded.</p>
+              <p className="text-xs text-neutral-600">No documents uploaded.</p>
             )}
             <ul className="space-y-1">
               {documents.map((d) => (
                 <li
                   key={d.id}
-                  className="flex items-center gap-2 rounded-lg bg-slate-900/50 px-2 py-1.5 text-xs text-slate-300"
+                  className="flex items-center gap-2 rounded-lg bg-white/[0.02] px-2 py-1.5 text-xs text-neutral-400"
                 >
-                  <FileText className="h-3.5 w-3.5 shrink-0 text-indigo-400" />
+                  <FileText className="h-3.5 w-3.5 shrink-0 text-[#ff0033]/60" />
                   <span className="truncate">{d.file_name}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="border-t border-slate-800/80 p-3">
+          <div className="border-t border-[#ff0033]/10 p-3">
             <div className="mb-2 flex items-center justify-between gap-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-semibold uppercase tracking-wider text-neutral-600">
                 Chats
               </p>
               <button
                 type="button"
                 onClick={() => newSessionMut.mutate()}
                 disabled={newSessionMut.isPending}
-                className="inline-flex items-center gap-1 rounded-lg bg-indigo-600/90 px-2 py-1 text-[11px] font-semibold text-white transition hover:bg-indigo-500 disabled:opacity-50"
+                className="inline-flex items-center gap-1 rounded-lg bg-[#ff0033]/90 px-2 py-1 text-[11px] font-semibold text-white transition-all duration-200 hover:bg-[#ff1744] disabled:opacity-50"
               >
                 <MessageSquarePlus className="h-3.5 w-3.5" />
                 New
@@ -358,10 +357,10 @@ export function ChatPage() {
                       setSources([])
                       setIsStreaming(false)
                     }}
-                    className={`w-full truncate rounded-lg px-2 py-1.5 text-left text-xs transition ${
+                    className={`w-full truncate rounded-lg px-2 py-1.5 text-left text-xs transition-all duration-200 ${
                       currentSessionId === s.id
-                        ? 'bg-indigo-500/20 text-indigo-100 ring-1 ring-indigo-500/30'
-                        : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
+                        ? 'bg-[#ff0033]/10 text-[#ff1744] ring-1 ring-[#ff0033]/25 shadow-[0_0_8px_rgba(255,0,51,0.1)]'
+                        : 'text-neutral-500 hover:bg-white/[0.03] hover:text-neutral-200'
                     }`}
                   >
                     {s.title || `Session ${s.id.slice(0, 8)}`}
@@ -370,7 +369,7 @@ export function ChatPage() {
               ))}
             </ul>
             {sessions.length === 0 && !sessionsQuery.isPending && (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-neutral-600">
                 No sessions yet. Start a new chat.
               </p>
             )}
@@ -388,7 +387,7 @@ export function ChatPage() {
           <button
             type="button"
             onClick={() => setMobileSourcesOpen(true)}
-            className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/95 px-2 py-1.5 text-xs text-slate-200 lg:hidden"
+            className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-lg border border-neutral-800 bg-[#0a0a0a] px-2 py-1.5 text-xs text-neutral-300 lg:hidden"
           >
             <PanelRightOpen className="h-4 w-4" />
             Sources
@@ -396,9 +395,9 @@ export function ChatPage() {
 
           <ChatWindow onShowSources={openSources} />
 
-          <footer className="border-t border-slate-800/80 bg-slate-950/95 p-3 backdrop-blur">
+          <footer className="border-t border-[#ff0033]/10 bg-[#0a0a0a]/95 p-3 backdrop-blur">
             {!chatReady && project && (
-              <div className="mx-auto mb-2 max-w-3xl rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-center text-xs text-amber-200">
+              <div className="mx-auto mb-2 max-w-3xl rounded-lg border border-[#ff0033]/20 bg-[#ff0033]/5 px-3 py-2 text-center text-xs text-[#ff1744]/80">
                 {project.status === 'processing'
                   ? 'Documents are being processed. Chat will be available once processing completes.'
                   : project.status === 'failed'
@@ -422,12 +421,12 @@ export function ChatPage() {
                     : 'Chat unavailable — process documents first'
                 }
                 disabled={isStreaming || !chatReady}
-                className="min-h-[48px] flex-1 rounded-2xl border border-slate-700 bg-slate-900/80 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 disabled:opacity-50"
+                className="min-h-[48px] flex-1 rounded-2xl border border-neutral-800 bg-[#111] px-4 py-3 text-sm text-white placeholder:text-neutral-700 transition-all duration-200 focus:border-[#ff0033]/50 focus:outline-none focus:ring-2 focus:ring-[#ff0033]/20 focus:shadow-[0_0_15px_rgba(255,0,51,0.1)] disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={isStreaming || !input.trim() || !chatReady}
-                className="rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-600 px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:from-indigo-500 hover:to-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-2xl bg-[#ff0033] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[rgba(255,0,51,0.2)] transition-all duration-200 hover:bg-[#ff1744] hover:shadow-[0_0_20px_rgba(255,0,51,0.3)] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Send
               </button>
@@ -449,14 +448,14 @@ export function ChatPage() {
           <button
             type="button"
             aria-label="Close sources"
-            className="absolute inset-0 bg-slate-950/80"
+            className="absolute inset-0 bg-black/80"
             onClick={() => setMobileSourcesOpen(false)}
           />
-          <div className="relative ml-auto flex h-full w-[min(100vw,20rem)] flex-col border-l border-slate-800 bg-slate-950 shadow-2xl">
+          <div className="relative ml-auto flex h-full w-[min(100vw,20rem)] flex-col border-l border-[#ff0033]/10 bg-[#0a0a0a] shadow-2xl">
             <button
               type="button"
               onClick={() => setMobileSourcesOpen(false)}
-              className="flex items-center gap-2 border-b border-slate-800 px-4 py-3 text-sm text-slate-300"
+              className="flex items-center gap-2 border-b border-[#ff0033]/10 px-4 py-3 text-sm text-neutral-400"
             >
               <ChevronLeft className="h-4 w-4" />
               Back to chat
