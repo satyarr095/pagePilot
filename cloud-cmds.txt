@@ -1,6 +1,8 @@
 Turn OFF everything:
-aws ecs update-service --cluster pagepilot-cluster --service pagepilot-api --desired-count 0 --region ap-south-1
-aws rds stop-db-instance --db-instance-identifier pagepilot-db --region ap-south-1
-Turn ON everything:
-aws rds start-db-instance --db-instance-identifier pagepilot-db --region ap-south-1
-aws ecs update-service --cluster pagepilot-cluster --service pagepilot-api --desired-count 1 --region ap-south-1
+aws ecs update-service --cluster pagepilot-cluster --service pagepilot-api --desired-count 0 --region ap-south-1; aws rds stop-db-instance --db-instance-identifier pagepilot-db --region ap-south-1
+
+Turn ON everything (wait ~5 min after for full startup):
+aws rds start-db-instance --db-instance-identifier pagepilot-db --region ap-south-1; aws ecs update-service --cluster pagepilot-cluster --service pagepilot-api --desired-count 1 --region ap-south-1
+
+Check status:
+aws rds describe-db-instances --db-instance-identifier pagepilot-db --region ap-south-1 --query 'DBInstances[0].DBInstanceStatus' --output text; aws ecs describe-services --cluster pagepilot-cluster --services pagepilot-api --region ap-south-1 --query 'services[0].{desired:desiredCount,running:runningCount}' --output table
