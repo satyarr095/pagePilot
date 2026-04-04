@@ -46,6 +46,12 @@ class Settings(BaseSettings):
         default_factory=lambda: ["http://localhost:5173"],
     )
 
+    STORAGE_BACKEND: str = Field(default="local", description="local or s3")
+    AWS_S3_BUCKET: str = Field(default="", description="S3 bucket for uploads")
+    AWS_REGION: str = Field(default="ap-south-1", description="AWS region")
+    SQS_QUEUE_URL: str = Field(default="", description="SQS queue URL for ingestion jobs")
+    ENVIRONMENT: str = Field(default="development", description="deployment environment")
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def parse_cors_origins(cls, value: Any) -> list[str]:

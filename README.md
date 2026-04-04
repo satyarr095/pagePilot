@@ -135,6 +135,17 @@ See `backend/.env.example` for all options. Key variables:
 | `EMBEDDING_MODEL` | No      | `text-embedding-3-small`             |
 | `RETRIEVAL_TOP_K` | No      | `5`                                  |
 
+## AWS Deployment
+
+The project is fully deployable to AWS using Terraform. See [`infra/README.md`](infra/README.md) for the complete deployment guide, architecture diagram, and operational runbooks.
+
+**Live URLs:**
+
+| Resource | URL |
+|----------|-----|
+| Frontend | `https://daqpw6pocqhjr.cloudfront.net` |
+| API | `https://daqpw6pocqhjr.cloudfront.net/api/v1` |
+
 ## Design Decisions
 
 - **Storage abstraction**: `StorageBackend` ABC in `utils/storage.py` — swap `LocalStorageBackend` for S3 later without touching services.

@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance } from 'axios'
 
-export const BASE_URL: string = 'http://localhost:8000/api/v1'
+export const BASE_URL: string = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 
 export type ProjectStatus = 'created' | 'processing' | 'ready' | 'failed'
 export type DocumentStatus = 'uploaded' | 'processing' | 'processed' | 'failed'

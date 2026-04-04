@@ -19,3 +19,4 @@ sse-starlette
 alembic
 aiofiles
 structlog
+boto3

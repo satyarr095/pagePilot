@@ -1,0 +1,6 @@
+Turn OFF everything:
+aws ecs update-service --cluster pagepilot-cluster --service pagepilot-api --desired-count 0 --region ap-south-1
+aws rds stop-db-instance --db-instance-identifier pagepilot-db --region ap-south-1
+Turn ON everything:
+aws rds start-db-instance --db-instance-identifier pagepilot-db --region ap-south-1
+aws ecs update-service --cluster pagepilot-cluster --service pagepilot-api --desired-count 1 --region ap-south-1

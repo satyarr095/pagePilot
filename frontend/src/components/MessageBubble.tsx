@@ -29,7 +29,7 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const [expanded, setExpanded] = useState(false)
   const isUser = message.role === 'user'
-  const sources = message.sources ?? []
+  const sources = (message.sources ?? []) as unknown as RetrievedSource[]
   const hasSources = sources.length > 0
 
   if (!message.content?.trim()) return null
