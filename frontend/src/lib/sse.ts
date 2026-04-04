@@ -27,8 +27,8 @@ interface SseEvent {
 /**
  * Stream chat messages from the backend SSE endpoint.
  *
- * The backend sends all events as default SSE `message` events with a JSON
- * payload containing a `type` field: "sources", "token", "done", or "error".
+ * The backend sends default SSE events (no `event:` field) with JSON
+ * `data:` payloads containing a `type` discriminator.
  */
 export async function sendMessage(
   projectId: string,
@@ -71,10 +71,10 @@ export async function sendMessage(
   let doneEmitted = false
   let failed = false
 
-  const emitDone = (sessionId: string) => {
+  const emitDone = (sid: string) => {
     if (doneEmitted || failed) return
     doneEmitted = true
-    callbacks.onDone?.(sessionId)
+    callbacks.onDone?.(sid)
   }
 
   const fail = (msg: string) => {
@@ -84,10 +84,13 @@ export async function sendMessage(
   }
 
   const processBlock = (block: string) => {
+    // Split on both \n and \r\n
     const lines = block.split(/\r?\n/)
     const dataLines: string[] = []
 
     for (const line of lines) {
+      // Skip SSE comments (lines starting with ':')
+      if (line.startsWith(':')) continue
       if (line.startsWith('data:')) {
         dataLines.push(line.slice(5).trimStart())
       }
@@ -96,6 +99,8 @@ export async function sendMessage(
     if (dataLines.length === 0) return
 
     const raw = dataLines.join('\n')
+    if (!raw.trim()) return
+
     const evt = safeJsonParse<SseEvent>(raw)
     if (!evt || !evt.type) return
 
@@ -123,8 +128,12 @@ export async function sendMessage(
     }
   }
 
+  /**
+   * Split the buffer on blank lines (SSE event boundary).
+   * Handles \n\n, \r\n\r\n, and mixed line endings.
+   */
   const processBuffer = () => {
-    const parts = buffer.split(/\n\n/)
+    const parts = buffer.split(/\r?\n\r?\n/)
     buffer = parts.pop() ?? ''
     for (const block of parts) {
       if (!block.trim()) continue
@@ -139,8 +148,9 @@ export async function sendMessage(
       buffer += decoder.decode(value, { stream: true })
       processBuffer()
     }
+    // Flush remaining bytes
     buffer += decoder.decode()
-    processBuffer()
+    if (buffer.trim()) processBlock(buffer)
     if (!failed && !doneEmitted) emitDone('')
   } catch (e) {
     if ((e as Error).name === 'AbortError') return

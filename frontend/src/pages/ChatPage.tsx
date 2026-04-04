@@ -19,6 +19,7 @@ import {
   getSessionMessages,
   processDocuments,
   uploadDocument,
+  type Message,
   type RetrievedSource,
 } from '../lib/api'
 import { sendMessage } from '../lib/sse'
@@ -49,20 +50,38 @@ export function ChatPage() {
   const setSelectedProject = useProjectStore((s) => s.setSelectedProject)
   const setMessages = useChatStore((s) => s.setMessages)
   const appendMessage = useChatStore((s) => s.appendMessage)
-  const isStreaming = useChatStore((s) => s.isStreaming)
-  const setIsStreaming = useChatStore((s) => s.setIsStreaming)
+  const streamPhase = useChatStore((s) => s.streamPhase)
+  const startStreaming = useChatStore((s) => s.startStreaming)
   const currentSessionId = useChatStore((s) => s.currentSessionId)
   const setCurrentSessionId = useChatStore((s) => s.setCurrentSessionId)
-  const setStreamingContent = useChatStore((s) => s.setStreamingContent)
   const appendStreamingToken = useChatStore((s) => s.appendStreamingToken)
   const setSources = useChatStore((s) => s.setSources)
   const sources = useChatStore((s) => s.sources)
   const resetForProject = useChatStore((s) => s.resetForProject)
+  const finishStreaming = useChatStore((s) => s.finishStreaming)
+  const abortStreaming = useChatStore((s) => s.abortStreaming)
+
+  const isStreaming = streamPhase !== 'idle'
 
   const [input, setInput] = useState('')
   const [uploadOpen, setUploadOpen] = useState(false)
   const [sourcesOpen, setSourcesOpen] = useState(true)
   const [mobileSourcesOpen, setMobileSourcesOpen] = useState(false)
+
+  // ── Synchronous project-change reset ──────────────────────────────
+  // Must happen during render (before queries evaluate) so stale
+  // session IDs from a previous project never reach the server.
+  const prevProjectIdRef = useRef(id)
+  if (prevProjectIdRef.current !== id) {
+    prevProjectIdRef.current = id
+    resetForProject()
+  }
+
+  // ── Track which session's messages have been loaded ───────────────
+  // This ref prevents React Query refetches from ever overwriting the
+  // Zustand messages store. We only write to setMessages when the user
+  // explicitly switches sessions or on first load.
+  const loadedSessionRef = useRef<string | null>(null)
 
   const projectQuery = useQuery({
     queryKey: ['project', id],
@@ -87,25 +106,35 @@ export function ChatPage() {
     return () => setSelectedProject(null)
   }, [projectQuery.data, setSelectedProject])
 
-  useEffect(() => {
-    resetForProject()
-  }, [id, resetForProject])
-
+  // Auto-select first session on initial load
   useEffect(() => {
     if (!currentSessionId && sessionsQuery.data?.length) {
       setCurrentSessionId(sessionsQuery.data[0].id)
     }
   }, [sessionsQuery.data, currentSessionId, setCurrentSessionId])
 
+  // Fetch messages for the current session (always fetches to keep
+  // React Query cache warm, but we only apply data to the store
+  // on explicit session changes — see the effect below).
   const messagesQuery = useQuery({
     queryKey: ['session-messages', id, currentSessionId],
     queryFn: () => getSessionMessages(id, currentSessionId!),
     enabled: Boolean(id) && Boolean(currentSessionId) && !isStreaming,
+    retry: false,
   })
 
+  // ── Explicit session-load effect ──────────────────────────────────
+  // Only populates the Zustand messages store when the session changes
+  // (user clicked a different session, auto-selected on load, etc.).
+  // Background refetches for the SAME session are ignored entirely,
+  // which eliminates the race condition with streaming.
   useEffect(() => {
-    if (messagesQuery.data) setMessages(messagesQuery.data)
-  }, [messagesQuery.data, setMessages])
+    if (!currentSessionId || !messagesQuery.data) return
+    if (isStreaming) return
+    if (loadedSessionRef.current === currentSessionId) return
+    loadedSessionRef.current = currentSessionId
+    setMessages(messagesQuery.data)
+  }, [currentSessionId, messagesQuery.data, isStreaming, setMessages])
 
   const processMut = useMutation({
     mutationFn: () => processDocuments(id),
@@ -121,9 +150,9 @@ export function ChatPage() {
     mutationFn: () => createChatSession(id),
     onSuccess: (session) => {
       queryClient.invalidateQueries({ queryKey: ['chat-sessions', id] })
+      loadedSessionRef.current = session.id
       setCurrentSessionId(session.id)
       setMessages([])
-      setStreamingContent('')
       setSources([])
       showToast('New chat session ready', 'success')
     },
@@ -143,7 +172,9 @@ export function ChatPage() {
   const handleSend = async () => {
     const text = input.trim()
     if (!text || !id) return
-    if (isStreaming) return
+
+    // Read directly from the store to avoid stale closure
+    if (useChatStore.getState().streamPhase !== 'idle') return
 
     streamAbortRef.current?.abort()
     const ac = new AbortController()
@@ -155,6 +186,7 @@ export function ChatPage() {
       typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
         : `u-${Date.now()}`
+
     appendMessage({
       id: userMsgId,
       chat_session_id: activeSessionId ?? 'pending',
@@ -163,9 +195,8 @@ export function ChatPage() {
       created_at: new Date().toISOString(),
     })
     setInput('')
-    setStreamingContent('')
     setSources([])
-    setIsStreaming(true)
+    startStreaming()
 
     let full = ''
     let collectedSources: RetrievedSource[] = []
@@ -185,33 +216,62 @@ export function ChatPage() {
             setSources(s)
           },
           onDone: (returnedSessionId) => {
-            if (returnedSessionId && returnedSessionId !== activeSessionId) {
-              setCurrentSessionId(returnedSessionId)
+            const effectiveSessionId =
+              returnedSessionId || activeSessionId || ''
+
+            let assistantMsg: Message | null = null
+            if (full.trim()) {
+              assistantMsg = {
+                id:
+                  typeof crypto !== 'undefined' && crypto.randomUUID
+                    ? crypto.randomUUID()
+                    : `a-${Date.now()}`,
+                chat_session_id: effectiveSessionId,
+                role: 'assistant',
+                content: full,
+                sources: collectedSources.length
+                  ? (collectedSources as unknown as Record<string, unknown>[])
+                  : undefined,
+                created_at: new Date().toISOString(),
+              }
+            }
+
+            const isNewSession =
+              returnedSessionId && returnedSessionId !== activeSessionId
+
+            // Atomic: append message + clear streaming + optionally switch session
+            finishStreaming(
+              assistantMsg,
+              isNewSession ? returnedSessionId : null,
+            )
+
+            // Mark session as loaded so the messagesQuery effect
+            // never overwrites the authoritative data we just set.
+            loadedSessionRef.current = isNewSession
+              ? returnedSessionId
+              : activeSessionId
+
+            if (isNewSession) {
               queryClient.invalidateQueries({
                 queryKey: ['chat-sessions', id],
               })
             }
-            if (full.trim()) {
-              const assistantId =
-                typeof crypto !== 'undefined' && crypto.randomUUID
-                  ? crypto.randomUUID()
-                  : `a-${Date.now()}`
-              appendMessage({
-                id: assistantId,
-                chat_session_id: returnedSessionId || activeSessionId || '',
-                role: 'assistant',
-                content: full,
-                sources: collectedSources.length ? collectedSources : undefined,
-                created_at: new Date().toISOString(),
-              })
+
+            // Prime React Query cache so subsequent navigations
+            // (switch away and back) see the latest messages.
+            const finalSessionId = isNewSession
+              ? returnedSessionId
+              : activeSessionId
+            if (finalSessionId) {
+              queryClient.setQueryData(
+                ['session-messages', id, finalSessionId],
+                useChatStore.getState().messages,
+              )
             }
-            setStreamingContent('')
-            setIsStreaming(false)
           },
           onError: (msg) => {
             showToast(msg, 'error')
-            setIsStreaming(false)
-            setStreamingContent('')
+            abortStreaming()
           },
         },
         ac.signal,
@@ -220,8 +280,7 @@ export function ChatPage() {
       if ((e as Error).name !== 'AbortError') {
         showToast(errorMessage(e), 'error')
       }
-      setIsStreaming(false)
-      setStreamingContent('')
+      abortStreaming()
     }
   }
 
@@ -229,6 +288,15 @@ export function ChatPage() {
     setSources(s)
     setSourcesOpen(true)
     setMobileSourcesOpen(true)
+  }
+
+  const handleSessionSwitch = (sessionId: string) => {
+    if (sessionId === currentSessionId) return
+    loadedSessionRef.current = null // force reload from server
+    setMessages([])
+    setCurrentSessionId(sessionId)
+    setSources([])
+    abortStreaming()
   }
 
   const project = projectQuery.data
@@ -350,13 +418,7 @@ export function ChatPage() {
                 <li key={s.id}>
                   <button
                     type="button"
-                    onClick={() => {
-                      setMessages([])
-                      setCurrentSessionId(s.id)
-                      setStreamingContent('')
-                      setSources([])
-                      setIsStreaming(false)
-                    }}
+                    onClick={() => handleSessionSwitch(s.id)}
                     className={`w-full truncate rounded-lg px-2 py-1.5 text-left text-xs transition-all duration-200 ${
                       currentSessionId === s.id
                         ? 'bg-[#ff0033]/10 text-[#ff1744] ring-1 ring-[#ff0033]/25 shadow-[0_0_8px_rgba(255,0,51,0.1)]'
