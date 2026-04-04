@@ -71,17 +71,13 @@ export function ChatPage() {
   // ── Synchronous project-change reset ──────────────────────────────
   // Must happen during render (before queries evaluate) so stale
   // session IDs from a previous project never reach the server.
-  const prevProjectIdRef = useRef(id)
+  const prevProjectIdRef = useRef<string | null>(null)
+  const loadedSessionRef = useRef<string | null>(null)
   if (prevProjectIdRef.current !== id) {
     prevProjectIdRef.current = id
+    loadedSessionRef.current = null
     resetForProject()
   }
-
-  // ── Track which session's messages have been loaded ───────────────
-  // This ref prevents React Query refetches from ever overwriting the
-  // Zustand messages store. We only write to setMessages when the user
-  // explicitly switches sessions or on first load.
-  const loadedSessionRef = useRef<string | null>(null)
 
   const projectQuery = useQuery({
     queryKey: ['project', id],

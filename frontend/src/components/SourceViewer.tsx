@@ -48,11 +48,11 @@ function SourceRow({ source }: { source: RetrievedSource }) {
 export function SourceViewer({ open, onToggle, sources }: SourceViewerProps) {
   return (
     <div
-      className={`relative flex shrink-0 flex-col border-l border-[#ff0033]/10 bg-[#0a0a0a] transition-[width] duration-300 ease-out ${
+      className={`relative flex h-full min-h-0 shrink-0 flex-col border-l border-[#ff0033]/10 bg-[#0a0a0a] transition-[width] duration-300 ease-out ${
         open ? 'w-full max-w-md lg:w-96' : 'w-0 overflow-hidden border-l-0'
       }`}
     >
-      <div className="flex h-full min-w-[min(100vw,24rem)] flex-col">
+      <div className="flex h-full min-h-0 min-w-[min(100vw,24rem)] flex-col">
         <div className="flex h-14 items-center justify-between border-b border-[#ff0033]/10 px-4">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-[#ff0033]" />
@@ -70,7 +70,7 @@ export function SourceViewer({ open, onToggle, sources }: SourceViewerProps) {
             <PanelRightClose className="h-5 w-5" />
           </button>
         </div>
-        <div className="flex-1 space-y-2 overflow-y-auto p-3">
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
           {sources.length === 0 ? (
             <div className="rounded-xl border border-dashed border-neutral-800/80 bg-[#050505] p-6 text-center text-sm text-neutral-600">
               Retrieved passages will appear here after the assistant responds.
