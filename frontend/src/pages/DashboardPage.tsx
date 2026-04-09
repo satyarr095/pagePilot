@@ -39,16 +39,21 @@ export function DashboardPage() {
     error,
     refetch,
     isFetching,
-  } = useQuery({
+  } = useQuery<Project[]>({
     queryKey: ['projects'],
     queryFn: getProjects,
+    refetchInterval: (query) => {
+      const list = query.state.data
+      if (list?.some((p: Project) => p.status === 'processing')) return 4000
+      return false
+    },
   })
 
   useEffect(() => {
     setProjects(projects)
   }, [projects, setProjects])
 
-  const createMut = useMutation({
+  const createMut = useMutation<Project, Error, { name: string; description?: string }>({
     mutationFn: createProject,
     onSuccess: (project) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] })

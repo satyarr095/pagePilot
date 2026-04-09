@@ -57,11 +57,21 @@ async def stream_chat(
     chat_engine = get_chat_engine()
 
     async def event_generator():
-        retrieval = retrieval_service.retrieve(
-            body.message,
-            project_id=str(project_id),
-            k=None,
-        )
+        import logging
+        _log = logging.getLogger(__name__)
+
+        try:
+            retrieval = retrieval_service.retrieve(
+                body.message,
+                project_id=str(project_id),
+                k=None,
+            )
+        except Exception as exc:
+            _log.exception("Retrieval failed for project %s", project_id)
+            yield _sse_payload({"type": "error", "message": f"Retrieval failed: {exc}"})
+            yield _sse_payload({"type": "done", "session_id": str(chat_session_id)})
+            return
+
         yield _sse_payload(
             {
                 "type": "sources",
@@ -71,29 +81,43 @@ async def stream_chat(
         )
 
         pieces: list[str] = []
-        async for token in chat_engine.generate_response(
-            body.message,
-            retrieval.chunks,
-            history_tuples,
-        ):
-            pieces.append(token)
-            yield _sse_payload({"type": "token", "content": token})
-
-        async with async_session_factory() as persist_db:
-            await ChatService.add_message(
-                persist_db,
-                chat_session_id,
-                MessageRole.user,
+        try:
+            async for token in chat_engine.generate_response(
                 body.message,
-            )
-            await ChatService.add_message(
-                persist_db,
-                chat_session_id,
-                MessageRole.assistant,
-                "".join(pieces),
-                sources=retrieval.sources,
-                retrieval_scores=retrieval.scores,
-            )
+                retrieval.chunks,
+                history_tuples,
+            ):
+                pieces.append(token)
+                yield _sse_payload({"type": "token", "content": token})
+        except Exception as exc:
+            _log.exception("LLM generation failed for project %s", project_id)
+            error_msg = str(exc)
+            if "rate_limit" in error_msg.lower() or "429" in error_msg:
+                error_msg = "OpenAI rate limit exceeded. Please wait a moment and try again."
+            elif "authentication" in error_msg.lower() or "401" in error_msg:
+                error_msg = "OpenAI API key is invalid. Please check configuration."
+            yield _sse_payload({"type": "error", "message": error_msg})
+            yield _sse_payload({"type": "done", "session_id": str(chat_session_id)})
+            return
+
+        try:
+            async with async_session_factory() as persist_db:
+                await ChatService.add_message(
+                    persist_db,
+                    chat_session_id,
+                    MessageRole.user,
+                    body.message,
+                )
+                await ChatService.add_message(
+                    persist_db,
+                    chat_session_id,
+                    MessageRole.assistant,
+                    "".join(pieces),
+                    sources=retrieval.sources,
+                    retrieval_scores=retrieval.scores,
+                )
+        except Exception:
+            _log.exception("Failed to persist messages for session %s", chat_session_id)
 
         yield _sse_payload(
             {

@@ -83,12 +83,19 @@ export function ChatPage() {
     queryKey: ['project', id],
     queryFn: () => getProject(id),
     enabled: Boolean(id),
+    refetchInterval: (query) => {
+      const status = query.state.data?.status
+      return status === 'processing' ? 3000 : false
+    },
   })
+
+  const isProcessing = projectQuery.data?.status === 'processing'
 
   const documentsQuery = useQuery({
     queryKey: ['documents', id],
     queryFn: () => getDocuments(id),
     enabled: Boolean(id),
+    refetchInterval: isProcessing ? 5000 : false,
   })
 
   const sessionsQuery = useQuery({
@@ -96,6 +103,23 @@ export function ChatPage() {
     queryFn: () => getChatSessions(id),
     enabled: Boolean(id),
   })
+
+  // Detect status transitions (processing → ready/failed)
+  const prevStatusRef = useRef<string | null>(null)
+  useEffect(() => {
+    const status = projectQuery.data?.status
+    if (!status) return
+    const prev = prevStatusRef.current
+    prevStatusRef.current = status
+
+    if (prev === 'processing' && status === 'ready') {
+      showToast('Processing complete — chat is now available!', 'success')
+      queryClient.invalidateQueries({ queryKey: ['documents', id] })
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+    } else if (prev === 'processing' && status === 'failed') {
+      showToast('Processing failed. Please check your documents.', 'error')
+    }
+  }, [projectQuery.data?.status, id, queryClient])
 
   useEffect(() => {
     if (projectQuery.data) setSelectedProject(projectQuery.data)
@@ -348,11 +372,13 @@ export function ChatPage() {
             )}
           </div>
 
+          {!chatReady && (
           <div className="flex gap-2 border-b border-[#ff0033]/10 p-3">
             <button
               type="button"
               onClick={() => setUploadOpen(true)}
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-neutral-800 bg-[#111] py-2 text-xs font-medium text-neutral-300 transition-all duration-200 hover:border-[#ff0033]/25 hover:bg-white/[0.03] hover:text-white"
+              disabled={project?.status === 'processing'}
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-neutral-800 bg-[#111] py-2 text-xs font-medium text-neutral-300 transition-all duration-200 hover:border-[#ff0033]/25 hover:bg-white/[0.03] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Upload className="h-3.5 w-3.5" />
               Upload
@@ -360,13 +386,14 @@ export function ChatPage() {
             <button
               type="button"
               onClick={() => processMut.mutate()}
-              disabled={processMut.isPending || documents.length === 0}
+              disabled={processMut.isPending || documents.length === 0 || project?.status === 'processing'}
               className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#ff0033] py-2 text-xs font-semibold text-white shadow-md shadow-[rgba(255,0,51,0.2)] transition-all duration-200 hover:bg-[#ff1744] hover:shadow-[0_0_15px_rgba(255,0,51,0.25)] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Play className="h-3.5 w-3.5" />
               {processMut.isPending ? '...' : 'Process'}
             </button>
           </div>
+          )}
 
           <div className="min-h-0 flex-1 overflow-y-auto p-3">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-600">

@@ -59,10 +59,13 @@ class RetrievalService:
 
             context_block_parts = [raw_text.strip()] if raw_text.strip() else []
             if tables:
-                context_block_parts.append(f"[tables]: {json.dumps(tables, ensure_ascii=False)}")
-            if images:
-                context_block_parts.append(f"[images]: {json.dumps(images, ensure_ascii=False)}")
+                tables_text = json.dumps(tables, ensure_ascii=False)
+                if len(tables_text) > 2000:
+                    tables_text = tables_text[:2000] + "..."
+                context_block_parts.append(f"[tables]: {tables_text}")
             chunk_text = "\n".join(context_block_parts).strip() or (doc.page_content or "")
+            if len(chunk_text) > 3000:
+                chunk_text = chunk_text[:3000] + "..."
 
             chunks.append(chunk_text)
             scores.append(similarity)

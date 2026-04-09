@@ -24,8 +24,13 @@ class ChatEngine:
         chat_history: Sequence[tuple[str, str]],
     ) -> list[BaseMessage]:
         context_lines: list[str] = []
+        total_chars = 0
+        max_context_chars = 12_000
         for i, chunk in enumerate(retrieved_chunks, start=1):
+            if total_chars + len(chunk) > max_context_chars:
+                break
             context_lines.append(f"--- Source segment {i} ---\n{chunk}")
+            total_chars += len(chunk)
         context_block = "\n\n".join(context_lines).strip()
 
         system = (
@@ -47,14 +52,16 @@ class ChatEngine:
                 ),
             )
 
-        for role, content in chat_history:
+        recent_history = chat_history[-10:] if len(chat_history) > 10 else chat_history
+        for role, content in recent_history:
             r = role.lower().strip()
+            trimmed = content[:2000] if len(content) > 2000 else content
             if r == "user":
-                messages.append(HumanMessage(content=content))
+                messages.append(HumanMessage(content=trimmed))
             elif r == "assistant":
-                messages.append(AIMessage(content=content))
+                messages.append(AIMessage(content=trimmed))
             elif r == "system":
-                messages.append(SystemMessage(content=content))
+                messages.append(SystemMessage(content=trimmed))
 
         messages.append(HumanMessage(content=query))
         return messages
